@@ -2,11 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\EspecialidadeRepository;
+use App\Repository\EspecialidadesRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=EspecialidadeRepository::class)
+ * @ORM\Entity(repositoryClass=EspecialidadesRepository::class)
  */
 class Especialidade implements \JsonSerializable
 {
