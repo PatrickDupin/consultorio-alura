@@ -6,3 +6,4 @@ Funcionalidades:
  - [x] CRUD Especialidades
  - [x] Autenticação
  - [x] Filtros
+ - [X] Paginação
