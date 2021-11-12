@@ -23,7 +23,7 @@ Funcionalidades:
  - MYSql
 
 ### Após baixar o projeto, será necessário seguir os seguintes passos:
- - Renomear o arquivo `.env.example` para `.env` e configurar o acesso ao banco de dados;
+ - Configurar o acesso ao seu banco de dados através do arquivo `.env`;
  - Baixar todas as  dependências e componentes:
    - `composer install`;
  - Criar o banco de dados:
