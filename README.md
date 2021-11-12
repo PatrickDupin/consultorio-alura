@@ -4,5 +4,5 @@
 Funcionalidades:
  - [x] CRUD Médicos
  - [x] CRUD Especialidades
- - [ ] Autenticação
- - [ ] Filtros
+ - [x] Autenticação
+ - [x] Filtros
