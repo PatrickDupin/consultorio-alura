@@ -4,14 +4,18 @@ namespace App\Controller;
 
 use App\Entity\Medico;
 use App\Helper\MedicoFactory;
+use App\Helper\ExtratorDadosRequest;
 use App\Repository\MedicosRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 class MedicosController extends BaseController
 {
+    /**
+     * @var MedicoFactory
+     */
+    private $medicoFactory;
     /**
      * @var MedicosRepository
      */
@@ -20,20 +24,23 @@ class MedicosController extends BaseController
     public function __construct(
         EntityManagerInterface $entityManager,
         MedicosRepository      $medicosRepository,
-        MedicoFactory          $medicoFactory
-    ) {
+        MedicoFactory          $medicoFactory,
+        ExtratorDadosRequest   $extratorDadosRequest
+    )
+    {
         parent::__construct(
             $entityManager,
             $medicosRepository,
-            $medicoFactory
+            $medicoFactory,
+            $extratorDadosRequest
         );
+        $this->medicoFactory = $medicoFactory;
         $this->medicosRepository = $medicosRepository;
     }
 
     /**
      * @param int $especialidadeId
      * @return Response
-     * @Route("/especialidades/{especialidadeId}/medicos", methods={"GET"})
      */
     public function buscaPorEspecialidade(int $especialidadeId): Response
     {
@@ -52,9 +59,17 @@ class MedicosController extends BaseController
         $entidadeExistente,
         $entidadeEnviada
     ) {
+        /** @var Medico $entidadeExistente */
+        $entidadeExistente = $this->repository->find($entidadeEnviada);
+        if (is_null($entidadeExistente)) {
+            throw new \InvalidArgumentException();
+        }
+
         $entidadeExistente
             ->setCrm($entidadeEnviada->getCrm())
             ->setNome($entidadeEnviada->getNome())
             ->setEspecialidade($entidadeEnviada->getEspecialidade());
+
+        return $entidadeExistente;
     }
 }

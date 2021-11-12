@@ -69,7 +69,7 @@ class Medico implements \JsonSerializable
      * @param mixed $nome
      * @return Medico
      */
-    public function setNome(string$nome): self
+    public function setNome(string $nome): self
     {
         $this->nome = $nome;
         return $this;
@@ -90,10 +90,20 @@ class Medico implements \JsonSerializable
     public function jsonSerialize()
     {
         return [
-            'id' => $this->getId(),
-            'crm' => $this->getCrm(),
-            'nome' => $this->getNome(),
-            'especialidadeId' => $this->getEspecialidade()->getId()
+            'id'              => $this->getId(),
+            'crm'             => $this->getCrm(),
+            'nome'            => $this->getNome(),
+            'especialidadeId' => $this->getEspecialidade()->getId(),
+            '_links'          => [
+                [
+                    'rel'  => 'self',
+                    'path' => '/medicos/' . $this->getId()
+                ],
+                [
+                    'rel'  => 'especialidades',
+                    'path' => '/especialidades/' . $this->getEspecialidade()->getId()
+                ]
+            ]
         ];
     }
 }

@@ -13,11 +13,11 @@ medico:
   methods:
     - GET
 
-# busca_medico_por_especialidade:
-#   path: /especialidades/{especialidadeId}/medicos
-#   controller: App\Controller\MedicosController::buscaPorEspecialidade
-#   methods:
-#     - GET
+busca_medico_por_especialidade:
+   path: /especialidades/{especialidadeId}/medicos
+   controller: App\Controller\MedicosController::buscaPorEspecialidade
+   methods:
+     - GET
 
 criar_medico:
   path: /medicos
