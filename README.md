@@ -18,8 +18,8 @@ Funcionalidades:
 ### Após baixar o projeto, será necessário seguir os seguintes passos:
  - Renomear o arquivo `.env.example` para `.env` e configurar o acesso ao banco de dados;
  - Baixar todas as  dependências e componentes:
-  - `composer install`;
+   - `composer install`;
  - Criar o banco de dados:
-  - `php bin/console doctrine:database:create`
+   - `php bin/console doctrine:database:create`
  - Rodar as *migrations*:
-  - `php bin/console doctrine:migrations:migrate`
+   - `php bin/console doctrine:migrations:migrate`
