@@ -2,16 +2,23 @@
 
 ## Desenvolvimento de uma API padrão REST para aplicação de um Consultório Médico.
 Funcionalidades:
- - [x] CRUD Médicos
- - [x] CRUD Especialidades
- - [x] Autenticação
- - [x] Filtros
- - [X] Paginação
+ - [x] Parte 1
+   - [x] CRUD Médicos
+   - [x] CRUD Especialidades
+ - [x] Parte 2
+   - [x] Filtros
+   - [X] Paginação
+   - [x] Autenticação
+ - [ ] Parte 3
+   - [ ] Tratamento de erros
+   - [ ] Cache
+   - [ ] Logs
+   - [ ] Testes
 
 
 
 ## Requisitos para rodar este Projeto:
- - PHP versão 7 ou superior;
+ - PHP versão 7.2 ou superior;
  - Composer
  - MYSql
 
