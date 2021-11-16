@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class LoginController extends AbstractController
 {
@@ -32,23 +33,21 @@ class LoginController extends AbstractController
     public function index(Request $request): Response
     {
         $dadosEmJson = json_decode($request->getContent());
-        if (is_null($dadosEmJson->usuario) || is_null($dadosEmJson->senha)) {
-            return new JsonResponse([
-                'erro' => 'Favor enviar usuário e senha'
-            ], Response::HTTP_BAD_REQUEST);
+
+        if ($dadosEmJson === false) {
+            throw new AuthenticationException('Dados inválidos');
         }
 
-        $user = $this->repository->findOneBy([
-            'username' => $dadosEmJson->usuario
-        ]);
+        $user = $this->repository->findOneBy(['username' => $dadosEmJson->usuario]);
+        if (is_null($user)) {
+            throw new AuthenticationException('Usuário inválido');
+        }
 
         if (!$this->encoder->isPasswordValid($user, $dadosEmJson->senha)) {
-            return new JsonResponse([
-                'erro' => 'Usuário ou senha inválidos'
-            ], Response::HTTP_UNAUTHORIZED);
+            throw new AuthenticationException('Usuário ou senha inválidos');
         }
-        $token = JWT::encode(['username' => $user->getUserIdentifier()],'chave','HS256');
 
+        $token = JWT::encode(['username' => $user->getUserIdentifier()],'chave','HS256');
         return new JsonResponse([
             'access_token' => $token
         ]);

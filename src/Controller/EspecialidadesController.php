@@ -7,6 +7,7 @@ use App\Helper\EspecialidadeFactory;
 use App\Helper\ExtratorDadosRequest;
 use App\Repository\EspecialidadesRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Cache\CacheItemPoolInterface;
 
 class EspecialidadesController extends BaseController
 {
@@ -14,13 +15,15 @@ class EspecialidadesController extends BaseController
         EntityManagerInterface   $entityManager,
         EspecialidadesRepository $especialidadesRepository,
         EspecialidadeFactory     $especialidadeFactory,
-        ExtratorDadosRequest     $extratorDadosRequest
+        ExtratorDadosRequest     $extratorDadosRequest,
+        CacheItemPoolInterface   $cache
     ) {
         parent::__construct(
             $entityManager,
             $especialidadesRepository,
             $especialidadeFactory,
-            $extratorDadosRequest
+            $extratorDadosRequest,
+            $cache
         );
     }
 
@@ -31,7 +34,8 @@ class EspecialidadesController extends BaseController
     public function atualizarEntidadeExistente(
         $entidadeExistente,
         $entidadeEnviada
-    ) {
+    )
+    {
         /** @var Especialidade $entidadeExistente */
         $entidadeExistente = $this->repository->find($entidadeEnviada);
         if (is_null($entidadeExistente)) {
@@ -41,5 +45,10 @@ class EspecialidadesController extends BaseController
         $entidadeExistente->setDescricao($entidadeEnviada->getDescricao());
 
         return $entidadeExistente;
+    }
+
+    public function cachePrefix(): string
+    {
+        return 'especialidade_';
     }
 }

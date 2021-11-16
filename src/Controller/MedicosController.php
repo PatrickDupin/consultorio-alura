@@ -7,6 +7,7 @@ use App\Helper\MedicoFactory;
 use App\Helper\ExtratorDadosRequest;
 use App\Repository\MedicosRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -25,14 +26,15 @@ class MedicosController extends BaseController
         EntityManagerInterface $entityManager,
         MedicosRepository      $medicosRepository,
         MedicoFactory          $medicoFactory,
-        ExtratorDadosRequest   $extratorDadosRequest
-    )
-    {
+        ExtratorDadosRequest   $extratorDadosRequest,
+        CacheItemPoolInterface $cache
+    ) {
         parent::__construct(
             $entityManager,
             $medicosRepository,
             $medicoFactory,
-            $extratorDadosRequest
+            $extratorDadosRequest,
+            $cache
         );
         $this->medicoFactory = $medicoFactory;
         $this->medicosRepository = $medicosRepository;
@@ -58,7 +60,8 @@ class MedicosController extends BaseController
     public function atualizarEntidadeExistente(
         $entidadeExistente,
         $entidadeEnviada
-    ) {
+    )
+    {
         /** @var Medico $entidadeExistente */
         $entidadeExistente = $this->repository->find($entidadeEnviada);
         if (is_null($entidadeExistente)) {
@@ -71,5 +74,10 @@ class MedicosController extends BaseController
             ->setEspecialidade($entidadeEnviada->getEspecialidade());
 
         return $entidadeExistente;
+    }
+
+    public function cachePrefix(): string
+    {
+        return 'medicos_';
     }
 }

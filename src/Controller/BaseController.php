@@ -2,12 +2,12 @@
 
 namespace App\Controller;
 
-use App\Entity\Especialidade;
 use App\Helper\EntidadeFactory;
 use App\Helper\ExtratorDadosRequest;
 use App\Helper\ResponseFactory;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Persistence\ObjectRepository;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,17 +31,23 @@ abstract class BaseController extends AbstractController
      * @var ExtratorDadosRequest
      */
     private $extratorDadosRequest;
+    /**
+     * @var CacheItemPoolInterface
+     */
+    private $cache;
 
     public function __construct(
-        EntityManager        $entityManager,
-        ObjectRepository     $repository,
-        EntidadeFactory      $factory,
-        ExtratorDadosRequest $extratorDadosRequest
+        EntityManager          $entityManager,
+        ObjectRepository       $repository,
+        EntidadeFactory        $factory,
+        ExtratorDadosRequest   $extratorDadosRequest,
+        CacheItemPoolInterface $cache
     ) {
         $this->entityManager = $entityManager;
         $this->repository = $repository;
         $this->factory = $factory;
         $this->extratorDadosRequest = $extratorDadosRequest;
+        $this->cache = $cache;
     }
 
     public function novo(Request $request): Response
@@ -52,6 +58,8 @@ abstract class BaseController extends AbstractController
         $this->entityManager->persist($entidade);
         $this->entityManager->flush();
 
+        $this->saveCacheItem($entidade);
+
         return new JsonResponse($entidade);
     }
 
@@ -60,14 +68,13 @@ abstract class BaseController extends AbstractController
         $filtro = $this->extratorDadosRequest->buscaDadosFiltro($request);
         $ordem = $this->extratorDadosRequest->buscaDadosOrdenacao($request);
         [$paginaAtual, $itensPorPagina] = $this->extratorDadosRequest->buscaDadosPaginacao($request);
-        $offset = ($paginaAtual - 1) * $itensPorPagina;
 
         $entidadeLista = $this->repository->findBy(
             $filtro,
             $ordem,
             $paginaAtual,
             $itensPorPagina,
-            $offset
+            ($paginaAtual - 1) * $itensPorPagina
         );
 
         $fabricaResposta = new ResponseFactory(
@@ -83,7 +90,10 @@ abstract class BaseController extends AbstractController
 
     public function buscarUm(int $id): Response
     {
-        $entidade = $this->repository->find($id);
+        $entidade = $this->cache->hasItem($this->cachePrefix() . $id)
+            ? $this->cache->getItem($this->cachePrefix() . $id)->get()
+            : $this->repository->find($id);
+
         $statusResposta = is_null($entidade)
             ? Response::HTTP_NO_CONTENT
             : Response::HTTP_OK;
@@ -105,6 +115,8 @@ abstract class BaseController extends AbstractController
         try {
             $this->atualizarEntidadeExistente($entidadeExistente, $entidadeEnviada);
             $this->entityManager->flush();
+
+            $this->saveCacheItem($entidade);
 
             $fabrica = new ResponseFactory(
                 true,
@@ -129,6 +141,8 @@ abstract class BaseController extends AbstractController
         $this->entityManager->remove($entidade);
         $this->entityManager->flush();
 
+        $this->cache->deleteItem($this->cachePrefix() . $id);
+
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
@@ -137,4 +151,18 @@ abstract class BaseController extends AbstractController
         $entidadeEnviada
     );
 
+    abstract public function cachePrefix(): string;
+
+    /**
+     * @param $entidade
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function saveCacheItem($entidade): void
+    {
+        $cacheItem = $this->cache->getItem(
+            $this->cachePrefix() . $entidade->getId()
+        );
+        $cacheItem->set($entidade);
+        $this->cache->save($cacheItem);
+    }
 }
