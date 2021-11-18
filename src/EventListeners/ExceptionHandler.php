@@ -4,6 +4,7 @@ namespace App\EventListeners;
 
 use App\Helper\ResponseFactory;
 use App\Helper\EntityFactoryException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -13,14 +14,24 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class ExceptionHandler implements EventSubscriberInterface
 {
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
 
     public static function getSubscribedEvents()
     {
         return [
             KernelEvents::EXCEPTION => [
-                ['handlerEntityException', 2],
-                ['handlerAuthenticationException', 1],
-                ['handle404Exception', 0]
+                ['handlerAuthenticationException', 2],
+                ['handlerEntityException', 1],
+                ['handle404Exception', 0],
+                ['handleGenericException', -1]
             ]
         ];
     }
@@ -59,5 +70,19 @@ class ExceptionHandler implements EventSubscriberInterface
             );
             $event->setResponse($fabricaResposta->getResponse());
         }
+    }
+
+    public function handleGenericException(ExceptionEvent $event)
+    {
+        $this->logger->critical('Houve uma exceção {stack}',[
+            'stack' => $event->getThrowable()->getTraceAsString()
+        ]);
+
+        $fabricaResposta = new ResponseFactory(
+            false,
+            $event->getThrowable()->getMessage(),
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        );
+        $event->setResponse($fabricaResposta->getResponse());
     }
 }

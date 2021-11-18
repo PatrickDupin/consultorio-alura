@@ -11,7 +11,7 @@ Funcionalidades:
    - [x] Autenticação
  - [ ] Parte 3
    - [x] Tratamento de erros
-   - [ ] Cache
+   - [x] Cache
    - [ ] Logs
    - [ ] Testes
 

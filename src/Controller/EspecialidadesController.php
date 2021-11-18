@@ -8,6 +8,7 @@ use App\Helper\ExtratorDadosRequest;
 use App\Repository\EspecialidadesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Log\LoggerInterface;
 
 class EspecialidadesController extends BaseController
 {
@@ -16,14 +17,16 @@ class EspecialidadesController extends BaseController
         EspecialidadesRepository $especialidadesRepository,
         EspecialidadeFactory     $especialidadeFactory,
         ExtratorDadosRequest     $extratorDadosRequest,
-        CacheItemPoolInterface   $cache
+        CacheItemPoolInterface   $cache,
+        LoggerInterface          $logger
     ) {
         parent::__construct(
             $entityManager,
             $especialidadesRepository,
             $especialidadeFactory,
             $extratorDadosRequest,
-            $cache
+            $cache,
+            $logger
         );
     }
 

@@ -38,12 +38,12 @@ class LoginController extends AbstractController
             throw new AuthenticationException('Dados inválidos');
         }
 
-        $user = $this->repository->findOneBy(['username' => $dadosEmJson->usuario]);
+        $user = $this->repository->findOneBy(['username' => $dadosEmJson->username]);
         if (is_null($user)) {
             throw new AuthenticationException('Usuário inválido');
         }
 
-        if (!$this->encoder->isPasswordValid($user, $dadosEmJson->senha)) {
+        if (!$this->encoder->isPasswordValid($user, $dadosEmJson->password)) {
             throw new AuthenticationException('Usuário ou senha inválidos');
         }
 
